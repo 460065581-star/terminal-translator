@@ -1,0 +1,58 @@
+const { app, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
+const pty = require('node-pty');
+
+let mainWindow;
+let ptyProcess;
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 1000,
+    height: 700,
+    title: 'Terminal Translator',
+    backgroundColor: '#1e1e2e',
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false,
+    },
+  });
+
+  mainWindow.loadFile('index.html');
+
+  const shell = process.env.SHELL || '/bin/zsh';
+  ptyProcess = pty.spawn(shell, [], {
+    name: 'xterm-256color',
+    cols: 80,
+    rows: 24,
+    cwd: process.env.HOME,
+    env: { ...process.env, TERM: 'xterm-256color' },
+  });
+
+  ptyProcess.onData((data) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('terminal:data', data);
+    }
+  });
+
+  ptyProcess.onExit(({ exitCode }) => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('terminal:exit', exitCode);
+    }
+  });
+}
+
+ipcMain.on('terminal:input', (_event, data) => {
+  if (ptyProcess) ptyProcess.write(data);
+});
+
+ipcMain.on('terminal:resize', (_event, { cols, rows }) => {
+  if (ptyProcess) ptyProcess.resize(cols, rows);
+});
+
+app.whenReady().then(createWindow);
+
+app.on('window-all-closed', () => {
+  if (ptyProcess) ptyProcess.kill();
+  app.quit();
+});
