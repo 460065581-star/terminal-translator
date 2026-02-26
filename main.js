@@ -6,9 +6,15 @@ let mainWindow;
 let ptyProcess;
 
 function createWindow() {
+  // 随机偏移位置，避免多实例窗口重叠
+  const offsetX = Math.floor(Math.random() * 200);
+  const offsetY = Math.floor(Math.random() * 150);
+
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 700,
+    x: 100 + offsetX,
+    y: 80 + offsetY,
     title: 'Terminal Translator',
     backgroundColor: '#1e1e2e',
     webPreferences: {

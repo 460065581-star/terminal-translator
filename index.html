@@ -121,6 +121,37 @@
       outline: none;
     }
     #api-config input:focus { border-color: #89b4fa; }
+    #api-config select {
+      width: 100%;
+      padding: 8px 10px;
+      background: #313244;
+      border: 1px solid #45475a;
+      border-radius: 4px;
+      color: #cdd6f4;
+      font-size: 13px;
+      margin-bottom: 12px;
+      outline: none;
+      cursor: pointer;
+    }
+    #api-config select:focus { border-color: #89b4fa; }
+    .toolbar-btn {
+      background: none;
+      border: 1px solid #45475a;
+      color: #a6adc8;
+      cursor: pointer;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .toolbar-btn:hover { color: #cdd6f4; background: #313244; border-color: #585b70; }
+    .toolbar-btn.active { color: #a6e3a1; border-color: #a6e3a1; }
+    #translate-header .right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
     #api-config button {
       width: 100%;
       padding: 8px;
@@ -144,18 +175,35 @@
   <div id="translate-panel">
     <div id="translate-header">
       <div class="title">📝 实时翻译</div>
-      <div class="status" id="translate-status">等待输出...</div>
+      <div class="right">
+        <div class="status" id="translate-status">等待输出...</div>
+        <button id="pause-btn" class="toolbar-btn" title="暂停翻译">⏸ 暂停</button>
+        <button id="snap-btn" class="toolbar-btn" title="翻译当前屏幕">📋 翻译当前屏幕</button>
+        <button id="clear-btn" class="toolbar-btn" title="清空翻译">🗑 清空</button>
+        <button id="settings-btn" class="toolbar-btn" title="设置">⚙ 设置</button>
+      </div>
     </div>
     <div id="translate-content"></div>
   </div>
 
   <div id="api-config">
     <div class="dialog">
-      <h2>🔑 配置 DeepSeek API</h2>
+      <h2>🔑 配置翻译 API</h2>
+      <label>模型预设</label>
+      <select id="api-preset">
+        <option value="deepseek">DeepSeek (推荐)</option>
+        <option value="openai">OpenAI</option>
+        <option value="kimi">Kimi (月之暗面)</option>
+        <option value="qwen">通义千问</option>
+        <option value="ollama">Ollama (本地)</option>
+        <option value="custom">自定义</option>
+      </select>
       <label>API Key</label>
       <input type="password" id="api-key-input" placeholder="sk-..." />
-      <label>API Base URL (可选)</label>
-      <input type="text" id="api-base-input" placeholder="https://api.deepseek.com" value="https://api.deepseek.com" />
+      <label>API Base URL</label>
+      <input type="text" id="api-base-input" placeholder="https://api.deepseek.com" />
+      <label>模型名称</label>
+      <input type="text" id="api-model-input" placeholder="deepseek-chat" />
       <button id="api-save-btn">保存并开始</button>
     </div>
   </div>
