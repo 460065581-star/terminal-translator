@@ -29,9 +29,9 @@
 
 ## 🚀 快速开始
 
-### 方式一：下载安装包（推荐小白用户）
+### 方式一：下载安装包（推荐小白用户）⭐ 强烈推荐！
 
-1. 前往 [Releases](https://github.com/460065581-star/terminal-translator/releases) 页面
+1. 前往 Release 页面（👉 点击蓝色 [Releases](https://github.com/460065581-star/terminal-translator/releases)）
 2. 下载最新的 `.dmg` 文件
 3. 双击打开 `.dmg` 文件
 4. 将 `Terminal Translator.app` 拖入 `Applications` 文件夹
