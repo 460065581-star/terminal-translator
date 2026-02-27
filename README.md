@@ -31,7 +31,7 @@
 
 ### 方式一：下载安装包（推荐小白用户）
 
-1. 前往 [Releases](https://github.com/YOUR_USERNAME/terminal-translator/releases) 页面
+1. 前往 [Releases](https://github.com/460065581-star/terminal-translator/releases) 页面
 2. 下载最新的 `.dmg` 文件
 3. 双击打开 `.dmg` 文件
 4. 将 `Terminal Translator.app` 拖入 `Applications` 文件夹
@@ -94,7 +94,7 @@
 #### 一键安装
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/terminal-translator.git
+git clone https://github.com/460065581-star/terminal-translator.git
 cd terminal-translator
 bash setup.sh
 ```
