@@ -29,13 +29,69 @@
 
 ## 🚀 快速开始
 
-### 前置要求
+### 方式一：下载安装包（推荐小白用户）
+
+1. 前往 [Releases](https://github.com/YOUR_USERNAME/terminal-translator/releases) 页面
+2. 下载最新的 `.dmg` 文件
+3. 双击打开 `.dmg` 文件
+4. 将 `Terminal Translator.app` 拖入 `Applications` 文件夹
+5. 按照下方「⚠️ 首次打开设置」完成安全设置
+
+---
+
+### ⚠️ 首次打开设置（重要！）
+
+由于这是个人开发的应用，没有 Apple 官方签名，macOS 会阻止首次打开。请按以下步骤操作：
+
+#### 第一步：尝试打开应用
+
+1. 打开 **访达（Finder）**
+2. 点击左侧的 **「应用程序」**（或按 `Command + Shift + A`）
+3. 找到 **Terminal Translator** 应用
+4. **双击打开**
+5. 会弹出如下提示框：
+
+![安全警告](screenshots/security-warning.png)
+
+6. 点击 **「完成」** 关闭这个弹窗（先不要点「移到废纸篓」！）
+
+#### 第二步：打开系统设置
+
+1. 点击屏幕左上角的 **苹果图标 ** 
+2. 点击 **「系统设置...」**（如果是旧版 macOS，叫「系统偏好设置」）
+
+#### 第三步：找到隐私与安全性
+
+1. 在系统设置窗口左侧，向下滚动
+2. 找到并点击 **「隐私与安全性」**
+
+#### 第四步：允许打开应用
+
+1. 在右侧页面向下滚动，找到 **「安全性」** 部分
+2. 你会看到一条提示：**「已阻止 "Terminal Translator.app"，因为它不是从 App Store 下载的」**
+3. 点击旁边的 **「仍要打开」** 按钮
+4. 系统会要求你输入 **电脑密码**（就是你开机时输入的密码）
+5. 输入密码后点击 **「解锁」** 或 **「修改设置」**
+
+#### 第五步：确认打开
+
+1. 会再次弹出确认框：「macOS 无法验证此 App 的开发者...」
+2. 点击 **「打开」**
+3. 🎉 应用成功启动！
+
+> 💡 **提示**：这个设置只需要做一次。之后就可以正常双击打开了。
+
+---
+
+### 方式二：从源码安装（开发者）
+
+#### 前置要求
 
 - macOS 10.15+
 - [Node.js](https://nodejs.org) >= 18
 - Xcode Command Line Tools (`xcode-select --install`)
 
-### 一键安装
+#### 一键安装
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/terminal-translator.git
@@ -43,7 +99,7 @@ cd terminal-translator
 bash setup.sh
 ```
 
-### 启动
+#### 启动
 
 ```bash
 npm start
