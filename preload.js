@@ -5,4 +5,6 @@ contextBridge.exposeInMainWorld('terminalAPI', {
   onExit: (cb) => ipcRenderer.on('terminal:exit', (_e, code) => cb(code)),
   sendInput: (data) => ipcRenderer.send('terminal:input', data),
   resize: (cols, rows) => ipcRenderer.send('terminal:resize', { cols, rows }),
+  readConfig: () => ipcRenderer.invoke('config:read'),
+  writeConfig: (data) => ipcRenderer.invoke('config:write', data),
 });

@@ -1,6 +1,20 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs');
 const pty = require('node-pty');
+
+// ── Config file ──
+const CONFIG_PATH = path.join(process.env.HOME, '.terminal-translator-config.json');
+
+function readConfig() {
+  try {
+    return JSON.parse(fs.readFileSync(CONFIG_PATH, 'utf8'));
+  } catch { return {}; }
+}
+
+function writeConfig(data) {
+  fs.writeFileSync(CONFIG_PATH, JSON.stringify(data, null, 2), 'utf8');
+}
 
 let mainWindow;
 let ptyProcess;
@@ -55,6 +69,9 @@ ipcMain.on('terminal:input', (_event, data) => {
 ipcMain.on('terminal:resize', (_event, { cols, rows }) => {
   if (ptyProcess) ptyProcess.resize(cols, rows);
 });
+
+ipcMain.handle('config:read', () => readConfig());
+ipcMain.handle('config:write', (_event, data) => writeConfig(data));
 
 app.whenReady().then(createWindow);
 

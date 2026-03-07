@@ -1,7 +1,7 @@
 /* global Terminal, FitAddon, terminalAPI */
 
 // ── State ──
-let preset = localStorage.getItem('tt_preset') || 'deepseek';
+let preset = 'deepseek';
 let apiKey = '';
 let apiBase = '';
 let modelName = '';
@@ -11,6 +11,7 @@ const BUFFER_DELAY = 800; // ms before flushing to translate
 let translating = false;
 let translateQueue = [];
 let paused = false;
+let _configCache = {};
 
 // ── Model Presets ──
 const PRESETS = {
@@ -22,23 +23,28 @@ const PRESETS = {
   custom:    { base: '', model: '', placeholder: 'API Key' },
 };
 
-// Load saved config for current preset
+// Load saved config for current preset (from file)
 function loadPresetConfig(p) {
-  const saved = JSON.parse(localStorage.getItem('tt_keys') || '{}');
   const defaults = PRESETS[p] || PRESETS.custom;
+  const saved = _configCache.keys || {};
   apiKey = (saved[p] && saved[p].key) || '';
   apiBase = (saved[p] && saved[p].base) || defaults.base;
   modelName = (saved[p] && saved[p].model) || defaults.model;
 }
 
-function savePresetConfig(p) {
-  const saved = JSON.parse(localStorage.getItem('tt_keys') || '{}');
-  saved[p] = { key: apiKey, base: apiBase, model: modelName };
-  localStorage.setItem('tt_keys', JSON.stringify(saved));
-  localStorage.setItem('tt_preset', p);
+async function savePresetConfig(p) {
+  if (!_configCache.keys) _configCache.keys = {};
+  _configCache.keys[p] = { key: apiKey, base: apiBase, model: modelName };
+  _configCache.preset = p;
+  await terminalAPI.writeConfig(_configCache);
 }
 
-loadPresetConfig(preset);
+// Init: load config from file, then proceed
+async function initConfig() {
+  _configCache = await terminalAPI.readConfig() || {};
+  preset = _configCache.preset || 'deepseek';
+  loadPresetConfig(preset);
+}
 
 // ── Terminal Setup ──
 const term = new Terminal({
@@ -126,7 +132,7 @@ const apiSaveBtn = document.getElementById('api-save-btn');
 // Preset change handler — load saved key for that preset
 apiPresetSelect.addEventListener('change', () => {
   const p = apiPresetSelect.value;
-  const saved = JSON.parse(localStorage.getItem('tt_keys') || '{}');
+  const saved = _configCache.keys || {};
   const defaults = PRESETS[p] || PRESETS.custom;
   apiKeyInput.value = (saved[p] && saved[p].key) || '';
   apiBaseInput.value = (saved[p] && saved[p].base) || defaults.base;
@@ -134,15 +140,17 @@ apiPresetSelect.addEventListener('change', () => {
   apiKeyInput.placeholder = defaults.placeholder;
 });
 
-// Load saved config
-if (apiKey || preset === 'ollama') {
-  configDialog.classList.add('hidden');
-}
-apiKeyInput.value = apiKey;
-apiBaseInput.value = apiBase;
-apiModelInput.value = modelName;
-apiPresetSelect.value = preset;
-apiKeyInput.placeholder = (PRESETS[preset] || PRESETS.custom).placeholder;
+// Init config from file then update UI
+initConfig().then(() => {
+  if (apiKey || preset === 'ollama') {
+    configDialog.classList.add('hidden');
+  }
+  apiKeyInput.value = apiKey;
+  apiBaseInput.value = apiBase;
+  apiModelInput.value = modelName;
+  apiPresetSelect.value = preset;
+  apiKeyInput.placeholder = (PRESETS[preset] || PRESETS.custom).placeholder;
+});
 
 apiSaveBtn.addEventListener('click', () => {
   apiKey = apiKeyInput.value.trim();
@@ -153,9 +161,10 @@ apiSaveBtn.addEventListener('click', () => {
   // Ollama doesn't need a key
   if (!apiKey && preset !== 'ollama') return;
 
-  savePresetConfig(preset);
-  configDialog.classList.add('hidden');
-  term.focus();
+  savePresetConfig(preset).then(() => {
+    configDialog.classList.add('hidden');
+    term.focus();
+  });
 });
 
 // Settings button - reopen config
@@ -420,8 +429,8 @@ async function translateText(text, contentType, command) {
 
   try {
     const systemPrompt = contentType === 'explain'
-      ? '你是一个终端教学助手，面向完全不懂编程的小白用户。用户会提供他们输入的命令和终端输出。请：1）先用一句话解释这个命令是做什么的（如"ls 命令用于列出当前文件夹的内容"）2）再用通俗易懂的中文解释输出内容的含义。保留命令名、路径、文件名等不翻译。简洁明了，不要啰嗦。'
-      : '你是一个终端输出翻译助手。将用户提供的英文终端输出翻译成简洁的中文。保留命令名、路径、包名等技术术语不翻译。只输出翻译结果，不要解释。如果内容已经是中文，直接原样返回。如果是无意义的输出（如纯符号、空行），回复"—"。';
+      ? '你是一个终端教学助手，面向完全不懂编程的小白用户。用户会提供他们输入的命令和终端输出。请：1）先用一句话解释这个命令是做什么的（如"ls 命令用于列出当前文件夹的内容"）2）再用通俗易懂的中文解释输出内容的含义。对于英文文件名和目录名，保留原文并在后面加括号注释中文含义，如 Downloads (下载文件夹)、node_modules (依赖包目录)、package.json (项目配置文件)。命令名保留原文。简洁明了，不要啰嗦。'
+      : '你是一个终端输出翻译助手。将用户提供的英文终端输出翻译成简洁的中文。对于英文文件名和目录名，保留原文并在后面加括号注释中文含义，如 Downloads (下载文件夹)、node_modules (依赖包目录)、LICENSE (许可证文件)。命令名保留原文。只输出翻译结果，不要额外解释。如果内容已经是中文，直接原样返回。如果是无意义的输出（如纯符号、空行），回复"—"。';
 
     const userContent = contentType === 'explain' && command
       ? `命令: ${command}\n输出:\n${text}`
